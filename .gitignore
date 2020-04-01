@@ -1,0 +1,14 @@
+# Python
+__pycache__
+
+# Node
+/node_modules
+
+# IDE
+.idea
+
+# Contracts
+/src/contracts/compiled
+
+# dependencies
+/vendor

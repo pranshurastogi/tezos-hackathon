@@ -1,0 +1,12 @@
+{
+  "name": "tezos-boilerplate-smartpy",
+  "version": "0.1.0",
+  "description": "Boilerplate for developing and testing Tezos Smart Contracts with SmartPy",
+  "scripts": {
+    "smartpy:install": "bash ./scripts/smartpy-install.sh",
+    "smartpy:test": "bash ./scripts/smartpy-test.sh"
+  },
+  "keywords": [],
+  "author": "Neil Russell <neilrussell6@gmail.com>",
+  "license": "ISC"
+}
