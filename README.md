@@ -17,4 +17,6 @@ Quick Start
 
 ## Resources 
 
-Please attach all the resources here.
+Medium article to deply tezos dapp : https://medium.com/@claudebarde/build-your-first-dapp-on-tezos-270c568d4fe9
+
+SmartPy documenttaion(Smart contract development) : http://smartpy.io/demo/reference.html
