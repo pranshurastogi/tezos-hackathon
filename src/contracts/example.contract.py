@@ -1,71 +1,58 @@
-"""Example Tezos smart contract"""
+# Calculator - Example for illustrative purposes only.
 
 import smartpy as sp
 
+class Calculator(sp.Contract):
+    def __init__(self):
+        self.init(value = 0)
 
-class Example(sp.Contract):
-    def __init__(self, owner):
-        self.init(
-            participants=sp.bigMap(tkey=sp.TAddress, tvalue=sp.TMutez),
-            owner=owner,
-        )
+    @sp.entry_point
+    def multiply(self, x, y):
+        self.data.value = x * y
 
-    @sp.entryPoint
-    def addParticipant(self, params):
-        sp.verify(sp.sender == self.data.owner, False, 'ERROR_ONLY_OWNER_CAN_ADD_PARTICIPANT')
-        self.data.participants[params.address] = sp.amount
+    @sp.entry_point
+    def add(self, x, y):
+        self.data.value = x + y
 
-    @sp.entryPoint
-    def participate(self, params):
-        sp.verify(self.data.participants.contains(sp.sender), False, 'ERROR_PARTICIPANT_MUST_EXIST_BEFORE_PARTICIPATING')
-        self.data.participants[sp.sender] += sp.amount
+    @sp.entry_point
+    def square(self, x):
+        self.data.value = x * x
 
+    @sp.entry_point
+    def squareRoot(self, x):
+        sp.verify(x >= 0)
+        y = sp.local('y', x)
+        sp.while y.value * y.value > x:
+            y.value = (x // y.value + y.value) // 2
+        sp.verify((y.value * y.value <= x) & (x < (y.value + 1) * (y.value + 1)))
+        self.data.value = y.value
 
-@addTest(name="example")
-def test_example_contract():
-    ownerAddress = sp.address('tz1ABC')
-    user1Address = sp.address('tz1DEF')
-    user2Address = sp.address('tz1GHI')
-    user3Address = sp.address('tz1JKL')
+    @sp.entry_point
+    def factorial(self, x):
+        self.data.value = 1
+        sp.for y in sp.range(1, x + 1):
+            self.data.value *= y
 
-    # given ... an Example contract instance with owner set
-    contract = Example(owner=ownerAddress)
-    scenario = sp.testScenario()
-    scenario += contract
+    @sp.entry_point
+    def log2(self, x):
+        self.data.value = 0
+        y = sp.local('y', x)
+        sp.while 1 < y.value:
+            self.data.value += 1
+            y.value //= 2
 
-    # when
-    # ... we add a participant as the owner
-    # then
-    # ... should succeed
-    scenario += contract.addParticipant(address=user1Address).run(sender=ownerAddress, amount=sp.mutez(0))
-    scenario += contract.addParticipant(address=user2Address).run(sender=ownerAddress, amount=sp.mutez(20))
-    # ... adding the user to participants map
-    scenario.verify(contract.data.participants.contains(user1Address))
-    scenario.verify(contract.data.participants.contains(user2Address))
-    # ... with the provided mutez as their initial value
-    scenario.verify(contract.data.participants[user1Address] == sp.mutez(0))
-    scenario.verify(contract.data.participants[user2Address] == sp.mutez(20))
-
-    # when
-    # ... we add a participant as not the owner
-    # then
-    # ... should fail
-    scenario += contract.addParticipant(address=user3Address).run(sender=user3Address, amount=sp.mutez(50), valid=False)
-    # ... not adding user to participants map
-    scenario.verify(~contract.data.participants.contains(user3Address))
-
-    # when
-    # ... we participate as an existing user
-    # then
-    # ... should succeed
-    scenario += contract.participate().run(sender=user1Address, amount=sp.mutez(5))
-    scenario += contract.participate().run(sender=user2Address, amount=sp.mutez(7))
-    # ... incrementing the user's mutez by provided amount
-    scenario.verify(contract.data.participants[user1Address] == sp.mutez(5))
-    scenario.verify(contract.data.participants[user2Address] == sp.mutez(27))
-
-    # when
-    # ... we attempt to participate as an non-existing user
-    # then
-    # ... should fail
-    scenario += contract.participate().run(sender=user3Address, amount=sp.mutez(50), valid=False)
+if "templates" not in __name__:
+    @sp.add_test(name = "Calculator")
+    def test():
+        c1 = Calculator()
+        scenario = sp.test_scenario()
+        scenario += c1
+        scenario += c1.multiply(x = 2, y = 5)
+        scenario += c1.add(x = 2, y = 5)
+        scenario += c1.add(x = 2, y = 5)
+        scenario += c1.square(12)
+        scenario += c1.squareRoot(0)
+        scenario += c1.squareRoot(1234)
+        scenario += c1.factorial(100)
+        scenario += c1.log2(c1.data.value)
+        scenario.verify(c1.data.value == 524)
