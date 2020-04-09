@@ -1,17 +1,15 @@
-Tezos Hackathon : SmartPy
+Tezos Hackathon : Token Swap
 ===
 
 
 Prerequisites
 ---
 
-Python 3.6+
+SmartPy
 
 Quick Start
 ---
- 
- - ``npm run smartpy:install`` Install SmartPy basic
- - ``npm run smartpy:test -- example.contract`` Run the tests for a specific smart 
+
 
 
 
